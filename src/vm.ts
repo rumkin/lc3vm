@@ -66,7 +66,7 @@ export class Vm {
     reg: Reg|null;
     private program: Uint16Array|null = null;
 
-    setProgram(program: Uint16Array): void {
+    loadProgram(program: Uint16Array): void {
         if (this.isRunning) {
             throw new Error('VM is running');
         }
