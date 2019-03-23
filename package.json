@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@testup/cli": "^0.3.0",
+    "@testup/console-reporter": "^0.1.1",
+    "@testup/core": "^0.1.2",
+    "typescript": "^3.3.4000"
+  },
+  "dependencies": {
+    "should": "^13.2.3"
+  },
+  "scripts": {
+    "test": "testup run build/*.spec.js"
+  }
+}
