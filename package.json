@@ -1,4 +1,5 @@
 {
+  "main": "./build/index.js",
   "devDependencies": {
     "@testup/cli": "^0.3.0",
     "@testup/console-reporter": "^0.1.1",
