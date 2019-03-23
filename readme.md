@@ -1,4 +1,4 @@
-# Little Computer 3
+# Little Computer 3 [WIP]
 
 [Little Computer 3](https://en.wikipedia.org/wiki/LC-3) TypeScript implementation.
 
@@ -17,9 +17,37 @@ const program = Uint16Array.from([
     Ins.trap(Traps.Halt),
 ]);
 
-vm.setProgram(program);
+vm.loadProgram(program);
 vm.run();
 ```
+
+## Progress
+
+Opcodes realized:
+
+- [x] BR
+- [x] ADD
+- [ ] LD
+- [ ] ST
+- [x] JSR
+- [x] AND
+- [ ] LDR
+- [ ] STR
+- [ ] ~~RTI~~ (unused)
+- [x] NOT
+- [ ] LDI
+- [ ] STI
+- [x] JMP
+- [ ] ~~RES~~ (unused)
+- [ ] LEA
+- [ ] TRAP:
+    - [ ] Getc
+    - [ ] Out
+    - [ ] Puts
+    - [ ] In
+    - [ ] Putsp
+    - [x] Halt
+
 
 ## License
 
