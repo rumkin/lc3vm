@@ -1,8 +1,8 @@
-# Little Computer 3 VM
+# Little Computer 3
 
-VM for [LC3](https://en.wikipedia.org/wiki/LC-3) education computer.
+[Little Computer 3](https://en.wikipedia.org/wiki/LC-3) TypeScript implementation.
 
-It consists of two parts: VM which executes code and Ops to write
+It consists of two parts: VM which executes code and Instructions to write
 low level byte commands in JavaScript or TypeScript.
 
 ```javascript
