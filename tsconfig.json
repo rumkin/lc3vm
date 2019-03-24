@@ -4,10 +4,9 @@
         "module": "commonjs",
         "sourceMap": true,
         "outDir": "./build",
-        "experimentalDecorators": true,
+        "experimentalDecorators": false,
         "lib": [
-            "es2017",
-            "dom"
+            "es2017"
         ]
     },
     "include": [

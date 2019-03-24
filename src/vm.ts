@@ -12,7 +12,7 @@ export enum Regs {
     COUNT,
 }
 
-class Reg {
+class Registry {
     [Regs.R0]: number = 0;
     [Regs.R1]: number = 0;
     [Regs.R2]: number = 0;
@@ -63,7 +63,7 @@ export class Vm {
     memory?: Int16Array;
     memorySize: number = 2 ** 16; // Default memory size
     initialMemory: Int16Array | null = null;
-    reg: Reg|null;
+    reg: Registry|null;
     private program: Uint16Array|null = null;
 
     loadProgram(program: Uint16Array): void {
@@ -215,11 +215,11 @@ export class Vm {
             this.memory.set(this.initialMemory, 0);
         }
 
-        this.reg = new Reg();
+        this.reg = new Registry();
         this.reg[Regs.PC] = PC_START;
     }
 
-    run(reset: Boolean = true) {
+    run(reset: Boolean = true): {memory: Int16Array, reg: Registry} {
         this.start();
 
         let running = true;
@@ -228,7 +228,11 @@ export class Vm {
             running = this.step();
         }
 
+        const {memory, reg} = this;
+
         this.stop(reset);
+
+        return {memory, reg};
     }
 }
 
