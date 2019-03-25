@@ -43,8 +43,52 @@ export function ld(r1: Regs, value: number): number {
 
 }
 
+export function ldi(r1: Regs, value: number): number {
+    return (r1 & 7) << 9
+        | toInt9(value)
+        | Ops.LDI << 12;
+
+}
+
+export function ldr(r1: Regs, r2: Regs, offset: number): number {
+    return (r1 & 7) << 9
+        | (r2 & 7) << 6
+        | toInt6(offset)
+        | Ops.LDR << 12;
+
+}
+
+export function lea(r1: Regs, value: number): number {
+    return (r1 & 7) << 9
+        | toInt9(value)
+        | Ops.LEA << 12;
+}
+
+export function st(r1: Regs, value: number): number {
+    return (r1 & 7) << 9
+        | toInt9(value)
+        | Ops.ST << 12;
+}
+
+export function sti(r1: Regs, offset: number): number {
+    return (r1 & 7) << 9
+        | toInt9(offset)
+        | Ops.STI << 12;
+}
+
+export function str(r1: Regs, r2: Regs, offset: number): number {
+    return (r1 & 7) << 9
+        | (r2 & 7) << 6
+        | toInt6(offset)
+        | Ops.STR << 12;
+}
+
 // Convert JS number to 2's compliment signed integer.
 export function createInt(size: number): (value: number) => number {
+    if (size < 2) {
+        throw new Error('Minimum size is 2');
+    }
+
     const maxValue = (1 << (size - 1)) - 1;
     const minValue = -maxValue - 1;
 
@@ -63,5 +107,6 @@ export function createInt(size: number): (value: number) => number {
 }
 
 const toInt5 = createInt(5);
+const toInt6 = createInt(6);
 const toInt9 = createInt(9);
 const toInt11 = createInt(11);

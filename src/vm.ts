@@ -35,15 +35,15 @@ export enum Compare {
 export enum Ops {
     BR = 0, // branch
     ADD,    // add
-    LD,     // load // NOT DONE
+    LD,     // load
     ST,     // store // NOT DONE
     JSR,    // jump register
     AND,    // bitwise and
-    LDR,    // load register // NOT DONE
+    LDR,    // load register
     STR,    // store register // NOT DONE
     RTI,    // - (unused)
     NOT,    // bitwise not
-    LDI,    // load indirect // NOT DONE
+    LDI,    // load indirect
     STI,    // store indirect // NOT DONE
     JMP,    // jump
     RES,    // reserved (unused) 
@@ -96,7 +96,7 @@ export class Vm {
         }
     }
 
-    updatesFlag(r:number) {
+    updateFlags(r:number) {
         let flag: Compare;
 
         if (this.reg[r] === 0) {
@@ -134,7 +134,7 @@ export class Vm {
                     const r2 = instr & 0b111;
                     this.reg[r0] = this.reg[r1] + this.reg[r2];
                 }
-                this.updatesFlag(r0);
+                this.updateFlags(r0);
                 break;
             }
             case Ops.AND: {
@@ -149,7 +149,7 @@ export class Vm {
                     const r2 = instr & 0b111;
                     this.reg[r0] = this.reg[r1] & this.reg[r2];
                 }
-                this.updatesFlag(r0);
+                this.updateFlags(r0);
                 break;
             }
             case Ops.NOT: {
@@ -157,7 +157,7 @@ export class Vm {
                 const r1 = (instr >> 6) & 0b111;
 
                 this.reg[r0] = ~this.reg[r1];
-                this.updatesFlag(r0);
+                this.updateFlags(r0);
                 break;
             }
             case Ops.BR: {
@@ -170,12 +170,12 @@ export class Vm {
                 break;
             }
             case Ops.JMP: {
-                const r1 = (instr >> 6) & 0b111;
-                this.reg[Regs.PC] = this.reg[r1];
+                const r0 = (instr >> 6) & 0b111;
+                this.reg[Regs.PC] = this.reg[r0];
                 break;
             }
             case Ops.JSR: {
-                const r1 = (instr >> 6) & 0b111;
+                const r0 = (instr >> 6) & 0b111;
                 const longFlag = (instr >> 11) & 0b1;
                 const longPcOffset = signExtend(instr & 0x7ff, 11);
 
@@ -184,8 +184,74 @@ export class Vm {
                     this.reg[Regs.PC] += longPcOffset;
                 }
                 else {
-                    this.reg[Regs.PC] = this.reg[r1];
+                    this.reg[Regs.PC] = this.reg[r0];
                 }
+                break;
+            }
+            case Ops.LD: {
+                const r0 = (instr >> 9) & 0b111;
+                const pcOffset = signExtend(instr & 0x1ff, 9);
+
+                this.reg[r0] = this.memory[this.reg[Regs.PC] + pcOffset];
+                this.updateFlags(r0);
+                break;
+            }
+            case Ops.LDI: {
+                const r0 = (instr >> 9) & 0b111;
+                const pcOffset = signExtend(instr & 0x1ff, 9);
+
+                this.reg[r0] = this.memory[
+                    this.memory[this.reg[Regs.PC] + pcOffset]
+                ];
+                this.updateFlags(r0);
+                break;
+            }
+            case Ops.LDR: {
+                const r0 = (instr >> 9) & 0b111;
+                const r1 = (instr >> 6) & 0b111;
+                const pcOffset = signExtend(instr & 0x3f, 6);
+
+                this.reg[r0] = this.memory[
+                    this.memory[this.reg[r1] + pcOffset]
+                ];
+                this.updateFlags(r0);
+                break;
+            }
+            case Ops.LEA: {
+                const r0 = (instr >> 9) & 0b111;
+                const pcOffset = signExtend(instr & 0x1ff, 9);
+
+                this.reg[r0] = this.reg[Regs.PC] + pcOffset;
+                this.updateFlags(r0);
+                break;
+            }
+            case Ops.ST: {
+                const r0 = (instr >> 9) & 0b111;
+                const pcOffset = signExtend(instr & 0x1ff, 9);
+
+                this.memWrite(this.reg[Regs.PC] + pcOffset, this.reg[r0]);
+                break;
+            }
+            case Ops.STI: {
+                const r0 = (instr >> 9) & 0b111;
+                const pcOffset = signExtend(instr & 0x1FF, 9);
+
+                this.memWrite(
+                    this.memRead(this.reg[Regs.PC] + pcOffset),
+                    this.reg[r0],
+                );
+
+                break;
+            }
+            case Ops.STR: {
+                const r0 = (instr >> 9) & 0b111;
+                const r1 = (instr >> 6) & 0b111;
+                const pcOffset = signExtend(instr & 0x3f, 6);
+
+                this.memWrite(
+                    this.reg[r1] + pcOffset,
+                    this.reg[r0]
+                );
                 break;
             }
             case Ops.TRAP: {
@@ -198,12 +264,22 @@ export class Vm {
                         throw new Error('Unknown trap');
                     }
                 }
-            } 
+            }
+            case Ops.RES:
+            case Ops.RTI:
             default:
-                throw new Error(`Unknown opcode ${toBinStr(op, 4)}`);
+                throw new Error(`Bad opcode ${toBinStr(op, 4)}`);
         }
 
         return true;
+    }
+
+    memWrite(addr: number, value: number) {
+        this.memory[addr] = value;
+    }
+
+    memRead(addr: number): number {
+        return this.memory[addr];
     }
 
     reset() {

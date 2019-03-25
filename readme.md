@@ -28,19 +28,19 @@ Opcodes realized:
 
 - [x] BR
 - [x] ADD
-- [ ] LD
-- [ ] ST
+- [x] LD
+- [x] ST
 - [x] JSR
 - [x] AND
-- [ ] LDR
-- [ ] STR
+- [x] LDR
+- [x] STR
 - [ ] ~~RTI~~ (unused)
 - [x] NOT
-- [ ] LDI
-- [ ] STI
+- [x] LDI
+- [x] STI
 - [x] JMP
 - [ ] ~~RES~~ (unused)
-- [ ] LEA
+- [x] LEA
 - [ ] TRAP:
     - [ ] Getc
     - [ ] Out
