@@ -113,6 +113,15 @@ export default function({describe, it}) {
                 assert.equal(int8(-1), 0b11111);
                 assert.equal(int8(-16), 0b10000);
             });
+
+            it('should create proper int2 converter', () => {
+                const int8 = Ins.createInt(2);
+
+                assert.equal(int8(0), 0);
+                assert.equal(int8(1), 0b01);
+                assert.equal(int8(-1), 0b11);
+                assert.equal(int8(-2), 0b10);
+            });
         });
     });
 }
