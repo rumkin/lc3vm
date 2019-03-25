@@ -64,24 +64,15 @@ export class Vm {
     memorySize: number = 2 ** 16; // Default memory size
     initialMemory: Int16Array | null = null;
     reg: Registry|null;
-    private program: Uint16Array|null = null;
 
-    loadProgram(program: Uint16Array): void {
-        if (this.isRunning) {
-            throw new Error('VM is running');
-        }
-
-        this.program = program;
-    }
-
-    start() {
+    start(program: Uint16Array) {
         if (this.isRunning) {
             throw new Error('VM is running');
         }
 
         this.reset();
         this.isRunning = true;
-        this.memory.set(this.program, PC_START);
+        this.memory.set(program, PC_START);
     }
 
     stop(reset:Boolean = true) {
@@ -295,8 +286,8 @@ export class Vm {
         this.reg[Regs.PC] = PC_START;
     }
 
-    run(reset: Boolean = true): {memory: Int16Array, reg: Registry} {
-        this.start();
+    run(program: Uint16Array, reset: Boolean = true): {memory: Int16Array, reg: Registry} {
+        this.start(program);
 
         let running = true;
         let limit = 1000;

@@ -2,24 +2,24 @@
 
 [Little Computer 3](https://en.wikipedia.org/wiki/LC-3) TypeScript implementation.
 
-It consists of two parts: VM which executes code and Instructions to write
-low level byte commands in JavaScript or TypeScript.
+It contains VM to execute code and Instructions to write bytecode in JavaScript or TypeScript.
 
 ```javascript
-import {Vm, Traps, Instructions as Ins} from './vm';
+import {Vm, Traps, Regs, Instructions as Ins} from './vm';
 
-const vm = new Vm();
+const {R0, R1, R2} = Regs;
 
 const program = Uint16Array.from([
-    Ins.add(0, 0, -3),
-    Ins.add(1, 1, -3),
-    Ins.addReg(2, 1, 0),
+    Ins.add(R0, R0, -3),
+    Ins.add(R1, R1, -3),
+    Ins.addReg(R2, R1, R0),
     Ins.trap(Traps.Halt),
 ]);
 
-vm.loadProgram(program);
-const {reg, memory} = vm.run();
-// Do something with registers or memory.
+const vm = new Vm();
+
+const {reg, memory} = vm.run(program);
+reg[R2] === -6; // true
 ```
 
 ## Progress
