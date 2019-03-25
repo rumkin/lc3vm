@@ -15,8 +15,9 @@ export default ({describe, it}) => {
                 Ins.trap(Traps.Halt),
             ]);
 
-            const {reg} = vm.run(program);
+            const {reg, status} = vm.run(program);
 
+            assert.equal(status, true, 'Status is true');
             assert.equal(reg[R0], -3, 'R0 is -3');
             assert.equal(reg[R1], 2, 'R1 is 2');
             assert.equal(reg[R2], -1, 'R2 is -1');

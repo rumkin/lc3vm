@@ -55,6 +55,15 @@ export enum Traps {
     Halt = 0x25,
 }
 
+export class VmError extends Error {};
+
+type RunResult = {
+    memory: Int16Array,
+    reg: Registry,
+    error: VmError,
+    status: Boolean,
+};
+
 // Program counter start offset
 const PC_START = 0x3000;
 
@@ -86,11 +95,11 @@ export class Vm {
     updateFlags(r:number) {
         let flag: Compare;
 
-        if (this.reg[r] === 0) {
-            flag = Compare.Zero;
-        }
-        else if (this.reg[r] > 0) {
+        if (this.reg[r] > 0) {
             flag = Compare.Pos;
+        }
+        else if (this.reg[r] === 0) {
+            flag = Compare.Zero;
         }
         else {
             flag = Compare.Neg;
@@ -242,20 +251,20 @@ export class Vm {
                 break;
             }
             case Ops.TRAP: {
-
-                switch (instr & 0xff) {
+                const trap = instr & 0xff;
+                switch (trap) {
                     case Traps.Halt: {
                         return false;
                     }
                     default: {
-                        throw new Error('Unknown trap');
+                        throw new VmError(`Bad trap ${trap}`);
                     }
                 }
             }
             case Ops.RES:
             case Ops.RTI:
             default:
-                throw new Error(`Bad opcode ${toBinStr(op, 4)}`);
+                throw new VmError(`Bad opcode ${toBinStr(op, 4)}`);
         }
 
         return true;
@@ -282,20 +291,31 @@ export class Vm {
         this.reg[Regs.PC] = PC_START;
     }
 
-    run(program: Uint16Array): {memory: Int16Array, reg: Registry} {
+    run(program: Uint16Array): RunResult {
         this.start(program);
 
         let running = true;
         let limit = 1000;
-        while(running && limit--) {
-            running = this.step();
+        let error = null;
+        try {
+            while(running && limit--) {
+                running = this.step();
+            }
+        }
+        catch (err) {
+            if (err instanceof VmError === false) {
+                throw err;
+            }
+            else {
+                error = err;
+            }
         }
 
         const {memory, reg} = this;
 
         this.stop();
 
-        return {memory, reg};
+        return {memory, reg, error, status: error === null};
     }
 }
 
