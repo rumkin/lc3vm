@@ -19,7 +19,7 @@ const program = Uint16Array.from([
 
 vm.loadProgram(program);
 const {reg, memory} = vm.run();
-// Do something with registers or memory.ß
+// Do something with registers or memory.
 ```
 
 ## Progress
