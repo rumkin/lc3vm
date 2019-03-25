@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 
-import { Vm, Regs, Traps, Instructions as Ins} from "./";
+import { Vm, Regs, Traps, Instructions as Ins} from "../src";
 
 export default ({describe, it}) => {
     describe('VM', () => {

@@ -237,11 +237,12 @@ export class Vm {
 }
 
 function signExtend(bytes: number, bits: number): number {
-    const shift = (bits - 1);
-    const value = bytes & ((1 << shift) - 1);  
-    const sign = ((bytes >> shift) & 1) ? -1 : 1;
-
-    return sign * value;
+    if (bytes < 1 << (bits - 1)) {
+        return bytes;
+    }
+    else {
+        return bytes - (1 << bits);
+    }
 }
 
 function toBinStr(v: number, length: number): string {

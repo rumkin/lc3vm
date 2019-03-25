@@ -11,6 +11,7 @@
     "should": "^13.2.3"
   },
   "scripts": {
-    "test": "testup run build/*.spec.js"
+    "build": "rm -rf build; mkdir build && tsc",
+    "test": "testup run build/test/*.spec.js"
   }
 }
