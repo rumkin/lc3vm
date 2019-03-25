@@ -88,6 +88,9 @@ export function createInt(size: number): (value: number) => number {
     if (size < 2) {
         throw new Error('Minimum size is 2');
     }
+    else if (size > 64) {
+        throw new Error('Maximum size is 64');
+    }
 
     const maxValue = (1 << (size - 1)) - 1;
     const minValue = -maxValue - 1;
