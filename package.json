@@ -7,9 +7,7 @@
     "@types/assert": "^1.4.2",
     "typescript": "^3.3.4000"
   },
-  "dependencies": {
-    "should": "^13.2.3"
-  },
+  "dependencies": {},
   "scripts": {
     "build": "rm -rf build; mkdir build && tsc",
     "test": "testup run build/test/*.spec.js"
