@@ -81,10 +81,6 @@ export class Vm {
         }
         
         this.isRunning = false;
-        if (reset) {
-            this.memory = null;
-            this.reg = null;
-        }
     }
 
     updateFlags(r:number) {
@@ -286,7 +282,7 @@ export class Vm {
         this.reg[Regs.PC] = PC_START;
     }
 
-    run(program: Uint16Array, reset: Boolean = true): {memory: Int16Array, reg: Registry} {
+    run(program: Uint16Array): {memory: Int16Array, reg: Registry} {
         this.start(program);
 
         let running = true;
@@ -297,7 +293,7 @@ export class Vm {
 
         const {memory, reg} = this;
 
-        this.stop(reset);
+        this.stop();
 
         return {memory, reg};
     }
