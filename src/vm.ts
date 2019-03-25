@@ -237,7 +237,8 @@ export class Vm {
 }
 
 function signExtend(bytes: number, bits: number): number {
-    if (bytes < 1 << (bits - 1)) {
+    const max = 1 << (bits - 1);
+    if (bytes < max) {
         return bytes;
     }
     else {
