@@ -5,6 +5,7 @@
         "sourceMap": true,
         "outDir": "./build",
         "experimentalDecorators": false,
+        "declaration": true,
         "lib": [
             "es2017"
         ]
