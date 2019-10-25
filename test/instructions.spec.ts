@@ -9,19 +9,19 @@ export default function({describe, it}) {
             it('(7)', () => {
                 const result = toBin(Ins.jsr(7));
                 const origin = fmt('0100 0 00 111 000000');
-                
+
                 assert.equal(result, origin);
             });
             it('(5)', () => {
                 const result = toBin(Ins.jsr(5));
                 const origin = fmt('0100 0 00 101 000000');
-                
+
                 assert.equal(result, origin);
             });
             it('(1)', () => {
                 const result = toBin(Ins.jsr(1));
                 const origin = fmt('0100 0 00 001 000000');
-                
+
                 assert.equal(result, origin);
             });
         });
@@ -30,32 +30,32 @@ export default function({describe, it}) {
             it('(1)', () => {
                 const result = toBin(Ins.jsrReg(1));
                 const origin = fmt('0100 1 000 0000 0001');
-                
+
                 assert.equal(result, origin);
             });
 
             it('(1023)', () => {
                 const result = toBin(Ins.jsrReg(1023));
                 const origin = fmt('0100 1 011 1111 1111');
-                
+
                 assert.equal(result, origin);
             });
 
             it('(-1)', () => {
                 const result = toBin(Ins.jsrReg(-1));
                 const origin = fmt('0100 1 111 1111 1111');
-                
+
                 assert.equal(result, origin);
             });
 
             it('(-1024)', () => {
                 const result = toBin(Ins.jsrReg(-1024));
                 const origin = fmt('0100 1 100 0000 0000');
-                
+
                 assert.equal(result, origin);
             });
         });
-    
+
         describe('ld()', () => {
             it('(1, 0)', () => {
                 const result = toBin(Ins.ld(1, 0));
@@ -281,35 +281,35 @@ export default function({describe, it}) {
         describe('str()', () => {
             it('(1, 1, 0)', () => {
                 const result = toBin(Ins.str(1, 1, 0));
-                const origin = fmt('0111 001 001 00 0000');
+                const origin = fmt('0111 001 001 000000');
 
                 assert.equal(result, origin);
             });
 
             it('(1, 1, 1)', () => {
                 const result = toBin(Ins.str(1, 1, 1));
-                const origin = fmt('0111 001 001 00 0001');
+                const origin = fmt('0111 001 001 000001');
 
                 assert.equal(result, origin);
             });
 
             it('(1, 1, 31)', () => {
                 const result = toBin(Ins.str(1, 1, 31));
-                const origin = fmt('0111 001 001 01 1111');
+                const origin = fmt('0111 001 001 011111');
 
                 assert.equal(result, origin);
             });
 
             it('(1, 1, -1)', () => {
                 const result = toBin(Ins.str(1, 1, -1));
-                const origin = fmt('0111 001 001 11 1111');
+                const origin = fmt('0111 001 001 111111');
 
                 assert.equal(result, origin);
             });
 
             it('(1, 1, -32)', () => {
                 const result = toBin(Ins.str(1, 1, -32));
-                const origin = fmt('0111 001 001 10 0000');
+                const origin = fmt('0111 001 001 100000');
 
                 assert.equal(result, origin);
             });
