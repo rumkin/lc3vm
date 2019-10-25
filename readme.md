@@ -1,6 +1,6 @@
 # Little Computer 3 [WIP]
 
-[Little Computer 3](https://en.wikipedia.org/wiki/LC-3) TypeScript implementation.
+[Little Computer 3](https://en.wikipedia.org/wiki/Little_Computer_3) TypeScript implementation.
 
 It contains VM to execute code and Instructions to write bytecode in JavaScript or TypeScript.
 
