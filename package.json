@@ -1,4 +1,7 @@
 {
+  "name":"lc-3",
+  "version":"0.1.0",
+  "description":"Little Computer 3 (LC-3) JS implementation",
   "main": "./build/index.js",
   "devDependencies": {
     "@testup/cli": "^0.3.0",
