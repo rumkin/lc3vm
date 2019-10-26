@@ -1,87 +1,121 @@
 import {Ops, Regs, Traps} from './vm';
 
-export function addReg(r1: Regs, r2: Regs, r3: Regs): number {
-    return r3
-        | r2 << 6
-        | r1 << 9
-        | Ops.ADD << 12;
-}
-
 export function add(r1: Regs, r2: Regs, val: number): number {
     return toInt5(val)
-        | 1 << 5
-        | r2 << 6
-        | r1 << 9
-        | Ops.ADD << 12;
+    | 1 << 5
+    | r2 << 6
+    | r1 << 9
+    | Ops.ADD << 12;
+}
+
+export function addReg(r1: Regs, r2: Regs, r3: Regs): number {
+    return r3
+    | r2 << 6
+    | r1 << 9
+    | Ops.ADD << 12;
+}
+
+export function and(r1: Regs, r2: Regs, val: number): number {
+    return toInt5(val)
+    | 1 << 5
+    | r2 << 6
+    | r1 << 9
+    | Ops.AND << 12;
+}
+
+export function andReg(r1: Regs, r2: Regs, r3: Regs): number {
+    return r3
+    | r2 << 6
+    | r1 << 9
+    | Ops.AND << 12;
+}
+
+export function br(nzp:number, offset: number): number {
+    return toInt9(offset)
+    | nzp << 9
+    | Ops.BR << 12;
 }
 
 export function jmp(r1: Regs): number {
     return (r1 & 7) << 6
-        | Ops.JMP << 12;
+    | Ops.JMP << 12;
+}
+
+export function ret(): number {
+    return jmp(0b111);
 }
 
 export function jsr(r1: Regs): number {
     return (r1 & 7) << 6
-        | Ops.JSR << 12;
+    | Ops.JSR << 12;
 }
 
 export function jsrReg(offset: number): number {
     return 1 << 11
-        | toInt11(offset)
-        | Ops.JSR << 12;
+    | toInt11(offset)
+    | Ops.JSR << 12;
+}
+
+export function not(r1: Regs, r2: Regs): number {
+    return toInt5(0b1111)
+    | 1 << 5
+    | r2 << 6
+    | r1 << 9
+    | Ops.NOT << 12;
 }
 
 export function trap(trap: Traps): number {
     return trap
-        | Ops.TRAP << 12;
+    | Ops.TRAP << 12;
 }
+
+// Memory
 
 export function ld(r1: Regs, value: number): number {
     return (r1 & 7) << 9
-        | toInt9(value)
-        | Ops.LD << 12;
-
+    | toInt9(value)
+    | Ops.LD << 12;
 }
 
 export function ldi(r1: Regs, value: number): number {
     return (r1 & 7) << 9
-        | toInt9(value)
-        | Ops.LDI << 12;
-
+    | toInt9(value)
+    | Ops.LDI << 12;
 }
 
 export function ldr(r1: Regs, r2: Regs, offset: number): number {
     return (r1 & 7) << 9
-        | (r2 & 7) << 6
-        | toInt6(offset)
-        | Ops.LDR << 12;
-
+    | (r2 & 7) << 6
+    | toInt6(offset)
+    | Ops.LDR << 12;
 }
 
 export function lea(r1: Regs, value: number): number {
     return (r1 & 7) << 9
-        | toInt9(value)
-        | Ops.LEA << 12;
+    | toInt9(value)
+    | Ops.LEA << 12;
 }
 
 export function st(r1: Regs, value: number): number {
     return (r1 & 7) << 9
-        | toInt9(value)
-        | Ops.ST << 12;
+    | toInt9(value)
+    | Ops.ST << 12;
 }
 
 export function sti(r1: Regs, offset: number): number {
     return (r1 & 7) << 9
-        | toInt9(offset)
-        | Ops.STI << 12;
+    | toInt9(offset)
+    | Ops.STI << 12;
 }
 
 export function str(r1: Regs, r2: Regs, offset: number): number {
     return (r1 & 7) << 9
-        | (r2 & 7) << 6
-        | toInt6(offset)
-        | Ops.STR << 12;
+    | (r2 & 7) << 6
+    | toInt6(offset)
+    | Ops.STR << 12;
 }
+
+// Utils
 
 // Convert JS number to 2's compliment signed integer.
 export function createInt(size: number): (value: number) => number {
