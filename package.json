@@ -1,8 +1,10 @@
 {
-  "name": "lc-3",
+  "name": "lc3vm",
   "version": "0.1.0",
-  "description": "Little Computer 3 (LC-3) JS implementation",
-  "main": "./build/index.js",
+  "description": "Little Computer 3 (LC-3) TypeScript implementation",
+  "main": "build/index.js",
+  "types": "types",
+  "keywords": ["lc-3", "lc3", "little computer 3", "vm"],
   "devDependencies": {
     "@testup/cli": "^0.3.0",
     "@testup/console-reporter": "^0.1.1",
@@ -14,7 +16,9 @@
     "error3": "^3.1.1"
   },
   "scripts": {
-    "build": "rm -rf build; mkdir build && tsc",
+    "build:dev": "rm -rf build; mkdir build && tsc --build tsconfig.dev.json",
+    "build": "rm -rf build types; tsc",
+    "prepublishOnly": "npm run build",
     "test": "testup run build/test/*.spec.js"
   }
 }

@@ -1,0 +1,8 @@
+/.vscode
+/tsconfig.json
+/tsconfig.*.json
+/.testuprc
+
+/src
+/test
+/tmp
