@@ -1,4 +1,4 @@
-# Little Computer 3 [WIP]
+# Little Computer 3
 
 [Little Computer 3](https://en.wikipedia.org/wiki/Little_Computer_3) TypeScript implementation.
 
@@ -10,46 +10,48 @@ import {Vm, Traps, Regs, Instructions as Ins} from './vm';
 const {R0, R1, R2, R3} = Regs;
 
 const program = Uint16Array.from([
-    Ins.add(R0, R0, -3),
-    Ins.add(R1, R1, -3),
+    Ins.add(R0, R0, 2),
+    Ins.add(R1, R1, 1),
     Ins.addReg(R2, R1, R0),
     Ins.str(R2, R3, 0),
+    Ins.trap(Traps.OUT),
     Ins.trap(Traps.Halt),
 ]);
 
 const vm = new Vm();
 
-const {status, reg, memory} = vm.run(program);
+const {status, reg, memory, output} = vm.run(program);
 status; // -> true
-reg[R2]; // -> -6
-memory[0]; // -> -6
+reg[R2]; // -> 3
+memory[0]; // -> 3
+output; // -> [2]
 ```
 
-## Progress
+## Test coverage
 
 Opcodes realized:
 
-- [x] BR
+- [ ] BR
 - [x] ADD
-- [x] LD
-- [x] ST
-- [x] JSR
 - [x] AND
-- [x] LDR
-- [x] STR
-- [ ] ~~RTI~~ (unused)
-- [x] NOT
-- [x] LDI
-- [x] STI
-- [x] JMP
-- [ ] ~~RES~~ (unused)
+- [ ] JMP
+- [ ] JSR
+- [ ] LD
+- [ ] LDI
+- [ ] LDR
 - [x] LEA
-- [ ] TRAP:
-    - [ ] Getc
-    - [ ] Out
-    - [ ] Puts
-    - [ ] In
-    - [ ] Putsp
+- [x] NOT
+- [ ] ~~RTI~~ (unused)
+- [ ] ~~RES~~ (unused)
+- [x] ST
+- [x] STR
+- [ ] STI
+- [x] TRAP:
+    - [x] Getc
+    - [x] Out
+    - [x] Puts
+    - [x] In
+    - [x] Putsp
     - [x] Halt
 
 
