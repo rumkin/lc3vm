@@ -1,3 +1,5 @@
+import Error3 from 'error3'
+
 export enum Regs {
     R0 = 0,
     R1,
@@ -36,60 +38,138 @@ export enum Ops {
     BR = 0, // branch
     ADD,    // add
     LD,     // load
-    ST,     // store // NOT DONE
+    ST,     // store
     JSR,    // jump register
     AND,    // bitwise and
     LDR,    // load register
-    STR,    // store register // NOT DONE
+    STR,    // store register
     RTI,    // - (unused)
     NOT,    // bitwise not
     LDI,    // load indirect
-    STI,    // store indirect // NOT DONE
+    STI,    // store indirect
     JMP,    // jump
-    RES,    // reserved (unused) 
-    LEA,    // load effective address // NOT DONE
-    TRAP,   // Execute trap // NOT DONE
+    RES,    // reserved (unused)
+    LEA,    // load effective address
+    TRAP,   // Execute trap
 }
 
 export enum Traps {
-    Halt = 0x25,
+    GETC = 0x20,
+    OUT = 0x21,
+    PUTS = 0x22,
+    IN = 0x23,
+    PUTSP = 0x24,
+    HALT = 0x25,
 }
 
-export class VmError extends Error {};
+export const INPUT_PREFIX = 'Enter a character: '
+
+export abstract class VmError<T,E> extends Error3<T,E> {};
+
+export class BadOpcodeErr extends VmError<{opcode: number}, void> {
+    code = 'bad_opcode'
+
+    format({opcode}) {
+        return `Bad opcode ${toBinStr(opcode, 8)}`;
+    }
+}
+
+export class BadTrapErr extends VmError<{trap: number}, void> {
+    code = 'bad_trap'
+
+    format({trap}) {
+        return `Bad trap ${toBinStr(trap, 8)}`;
+    }
+}
 
 type RunResult = {
     memory: Int16Array,
     reg: Registry,
-    error: VmError,
+    error: BadOpcodeErr|BadTrapErr,
     status: Boolean,
+    output: Array<number>,
 };
 
 // Program counter start offset
 const PC_START = 0x3000;
 
+type OnFlush = (Uint8Array) => void
+interface VmOptions {
+    onFlush?: OnFlush
+    memorySize?: number,
+}
+
+interface RunOptions {
+    memory?: Int16Array
+    input?:Array<number>
+}
+
 export class Vm {
     isRunning: boolean = false;
     memory?: Int16Array;
-    memorySize: number = 2 ** 16; // Default memory size
+    memorySize: number; // Default memory size
     initialMemory: Int16Array | null = null;
     reg: Registry|null;
+    _output: Array<number>;
+    _buffer: Array<number>;
+    _input: Array<number>;
+    onFlush: OnFlush;
+    _resolveInput: Function;
 
-    start(program: Uint16Array) {
-        if (this.isRunning) {
-            throw new Error('VM is running');
-        }
-
-        this.reset();
-        this.isRunning = true;
-        this.memory.set(program, PC_START);
+    constructor({
+        onFlush = () => {},
+        memorySize = 2**16,
+    }:VmOptions = {}) {
+        this.onFlush = onFlush;
+        this.memorySize = memorySize;
     }
 
-    stop(reset:Boolean = true) {
-        if (! this.isRunning) {
-            throw new Error('Not running');
+    async getc(): Promise<number> {
+        if (this._input.length) {
+            return Promise.resolve(
+                this._input.shift()
+            )
         }
-        
-        this.isRunning = false;
+        else {
+            return new Promise((resolve) => {
+                this._resolveInput = resolve
+            })
+        }
+    }
+
+    putc(char: number): void {
+        this._buffer.push(char);
+    }
+
+    print(string: string): void {
+        this._buffer.push(
+            ...Array.from(string).map((c) => c.charCodeAt(0))
+        )
+    }
+
+    flush(): void {
+        this._output.push(...this._buffer);
+        this.onFlush(
+            Uint8Array.from(this._buffer)
+        );
+        this._buffer = [];
+    }
+
+    inputChar(char:number): void {
+        if (this._resolveInput) {
+            this._resolveInput(char)
+        }
+        else {
+            this._input.push(char)
+        }
+    }
+
+    memWrite(addr: number, value: number) {
+        this.memory[addr] = value;
+    }
+
+    memRead(addr: number): number {
+        return this.memory[addr];
     }
 
     updateFlags(r:number) {
@@ -108,15 +188,16 @@ export class Vm {
         this.reg[Regs.COND] = flag;
     }
 
-    step(): boolean {
+    step(): Promise<boolean>|boolean {
         if (! this.isRunning) {
             throw new Error('not running');
         }
 
-        const instr = toUint16(this.memory[this.reg[Regs.PC]++]);
-        const op = instr >> 12;
+        const pc = this.reg[Regs.PC]++;
+        const instr = toUint16(this.memory[pc]);
+        const opcode = instr >> 12;
 
-        switch (op) {
+        switch (opcode) {
             case Ops.ADD:
             {
                 const r0 = (instr >> 9) & 0b111;
@@ -153,7 +234,7 @@ export class Vm {
                 const r1 = (instr >> 6) & 0b111;
 
                 this.reg[r0] = ~this.reg[r1];
-                this.updateFlags(r0);
+                this.updateFlags(this.reg[r0]);
                 break;
             }
             case Ops.BR: {
@@ -253,37 +334,99 @@ export class Vm {
             case Ops.TRAP: {
                 const trap = instr & 0xff;
                 switch (trap) {
-                    case Traps.Halt: {
+                    case Traps.GETC: {
+                        return this.getc()
+                        .then((char) => {
+                            this.reg[Regs.R0] = char
+                            return true
+                        })
+                    }
+                    case Traps.OUT: {
+                        this.putc(this.reg[Regs.R0])
+                        this.flush();
+
+                        return true;
+                    }
+                    case Traps.PUTS: {
+                        let c = this.reg[Regs.R0];
+                        let char;
+                        while ((char = this.memory[c]) > 0) {
+                            this.putc(char % 256);
+                            c++
+                        }
+                        this.flush();
+                        return true;
+                    }
+                    case Traps.IN: {
+                        this.print(INPUT_PREFIX)
+                        this.flush()
+                        return this.getc()
+                        .then((char) => {
+                            this.reg[Regs.R0] = char
+                            this.putc(char)
+                            return true
+                        })
+                    }
+                    case Traps.PUTSP: {
+                        let c = this.reg[Regs.R0];
+                        let char;
+                        while ((char = this.memory[c]) > 0) {
+                            const ui16 = toUint16(char)
+                            this.putc(ui16 & 0xFF);
+                            const char2 = ui16 >> 8;
+                            if (char2 > 0) {
+                                this.putc(char2);
+                            }
+                            c++
+                        }
+                        this.flush();
+                        return true;
+                    }
+                    case Traps.HALT: {
+                        this.flush();
                         return false;
                     }
                     default: {
-                        throw new VmError(`Bad trap ${trap}`);
+                        throw new BadTrapErr({trap});
                     }
                 }
             }
             case Ops.RES:
             case Ops.RTI:
             default:
-                throw new VmError(`Bad opcode ${toBinStr(op, 4)}`);
+                throw new BadOpcodeErr({opcode});
         }
 
         return true;
     }
 
-    memWrite(addr: number, value: number) {
-        this.memory[addr] = value;
+    start(program: Uint16Array) {
+        if (this.isRunning) {
+            throw new Error('VM is running');
+        }
+
+        this.reset();
+        this.isRunning = true;
+        this.memory.set(program, PC_START);
     }
 
-    memRead(addr: number): number {
-        return this.memory[addr];
+    stop(reset:Boolean = true) {
+        if (! this.isRunning) {
+            throw new Error('Not running');
+        }
+
+        this.isRunning = false;
     }
 
     reset() {
         this.memory = new Int16Array(
-            new ArrayBuffer(this.memorySize)
+            this.memorySize
         );
+        this._output = [];
+        this._buffer = [];
+        this._input = [];
 
-        if (this.initialMemory != null) {
+        if (this.initialMemory !== null) {
             this.memory.set(this.initialMemory, 0);
         }
 
@@ -291,15 +434,19 @@ export class Vm {
         this.reg[Regs.PC] = PC_START;
     }
 
-    run(program: Uint16Array): RunResult {
+    async run(program: Uint16Array, {
+        memory: initialMemory = new Int16Array(),
+        input = [],
+    }: RunOptions = {}): Promise<RunResult> {
         this.start(program);
+        this.memory.set(initialMemory.slice(0, 2999), 0);
+        this._input = input;
 
         let running = true;
-        let limit = 1000;
         let error = null;
         try {
-            while(running && limit--) {
-                running = this.step();
+            while (running && this.reg[Regs.PC] < this.memory.length) {
+                running = await this.step();
             }
         }
         catch (err) {
@@ -311,11 +458,17 @@ export class Vm {
             }
         }
 
-        const {memory, reg} = this;
+        const {memory, reg, _output: output} = this;
 
         this.stop();
 
-        return {memory, reg, error, status: error === null};
+        return {
+            status: error === null,
+            error,
+            memory,
+            reg,
+            output,
+        };
     }
 }
 
