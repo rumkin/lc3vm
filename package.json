@@ -1,7 +1,7 @@
 {
-  "name":"lc-3",
-  "version":"0.1.0",
-  "description":"Little Computer 3 (LC-3) JS implementation",
+  "name": "lc-3",
+  "version": "0.1.0",
+  "description": "Little Computer 3 (LC-3) JS implementation",
   "main": "./build/index.js",
   "devDependencies": {
     "@testup/cli": "^0.3.0",
@@ -10,7 +10,9 @@
     "@types/assert": "^1.4.2",
     "typescript": "^3.3.4000"
   },
-  "dependencies": {},
+  "dependencies": {
+    "error3": "^3.1.1"
+  },
   "scripts": {
     "build": "rm -rf build; mkdir build && tsc",
     "test": "testup run build/test/*.spec.js"
