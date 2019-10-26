@@ -4,6 +4,16 @@
 
 It contains VM to execute code and Instructions to write bytecode in JavaScript or TypeScript.
 
+## Install
+
+```
+npm i lc3vm
+```
+
+## Usage
+
+Create a program using progmatic interface and run it into VM.
+
 ```javascript
 import {Vm, Traps, Regs, Instructions as Ins} from './vm';
 
@@ -20,7 +30,7 @@ const program = Uint16Array.from([
 
 const vm = new Vm();
 
-const {status, reg, memory, output} = vm.run(program);
+const {status, reg, memory, output} = await vm.run(program);
 status; // -> true
 reg[R2]; // -> 3
 memory[0]; // -> 3
