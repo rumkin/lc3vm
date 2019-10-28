@@ -37,9 +37,9 @@ memory[0]; // -> 3
 output; // -> [2]
 ```
 
-## Test coverage
+# Test coverage
 
-Opcodes realized:
+Opcodes tested:
 
 - [ ] BR
 - [x] ADD
@@ -63,7 +63,6 @@ Opcodes realized:
     - [x] In
     - [x] Putsp
     - [x] Halt
-
 
 ## License
 
