@@ -15,24 +15,24 @@ npm i lc3vm
 Create a program using progmatic interface and run it into VM.
 
 ```javascript
-import {Vm, Traps, Regs, Instructions as Ins} from './vm';
+import {Vm, Traps, Regs, Assembly as Asm} from './vm';
 
 const {R0, R1, R2, R3} = Regs;
 
 const program = Uint16Array.from([
-    Ins.add(R0, R0, 2),
-    Ins.add(R1, R1, 1),
-    Ins.addReg(R2, R1, R0),
-    Ins.str(R2, R3, 0),
-    Ins.trap(Traps.OUT),
-    Ins.trap(Traps.Halt),
+    Asm.add(R0, R0, 2),
+    Asm.add(R1, R1, 1),
+    Asm.addReg(R2, R1, R0),
+    Asm.str(R2, R3, 0),
+    Asm.trap(Traps.OUT),
+    Asm.trap(Traps.Halt),
 ]);
 
 const vm = new Vm();
 
 const {status, reg, memory, output} = await vm.run(program);
 status; // -> true
-reg[R2]; // -> 3
+reg[R3]; // -> 3
 memory[0]; // -> 3
 output; // -> [2]
 ```

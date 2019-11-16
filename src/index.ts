@@ -1,4 +1,4 @@
 export {Vm, Regs, Traps} from './vm';
-import * as Instructions from './instructions';
+import * as Assembly from './assembly';
 
-export {Instructions};
+export {Assembly};

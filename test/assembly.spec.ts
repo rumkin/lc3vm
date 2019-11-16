@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 
-import * as Ins from '../src/instructions';
+import * as Ins from '../src/assembly';
 import {toBin, fmt} from './utils';
 
 export default function({describe, it}) {
-    describe('Instructions', () => {
+    describe('Assembly', () => {
         describe('jsr()', () => {
             it('(7)', () => {
                 const result = toBin(Ins.jsr(7));
