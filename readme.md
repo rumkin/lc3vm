@@ -14,10 +14,10 @@ npm i lc3vm
 
 Create a program using progmatic interface and run it into VM.
 
-```javascript
-import {Vm, Traps, Regs, Assembly as Asm} from './vm';
+```js
+import {Vm, Traps, Regs, Assembly as Asm} from './vm'
 
-const {R0, R1, R2, R3} = Regs;
+const {R0, R1, R2, R3} = Regs
 
 const program = Uint16Array.from([
     Asm.add(R0, R0, 2),
@@ -26,18 +26,47 @@ const program = Uint16Array.from([
     Asm.str(R2, R3, 0),
     Asm.trap(Traps.OUT),
     Asm.trap(Traps.Halt),
-]);
+])
 
-const vm = new Vm();
+const vm = new Vm()
 
-const {status, reg, memory, output} = await vm.run(program);
-status; // -> true
-reg[R3]; // -> 3
-memory[0]; // -> 3
-output; // -> [2]
+const {status, reg, memory, output} = await vm.run(program)
+status // -> true
+reg[R3] // -> 3
+memory[0] // -> 3
+output // -> [2]
 ```
 
-# Test coverage
+### Run with predefined input
+
+You can push an input into input buffer before VM is running. Here is the program
+which outputs chars from input:
+
+```js
+const program = Uint16Array.from([
+    Asm.trap(Traps.GETC),
+    Asm.str(Regs.R0, Regs.R1, 0),
+    Asm.trap(Traps.GETC),
+    Asm.str(Regs.R0, Regs.R1, 1),
+    Asm.trap(Traps.GETC),
+    Asm.str(Regs.R0, Regs.R1, 2),
+    Asm.trap(Traps.GETC),
+    Asm.str(Regs.R0, Regs.R1, 3),
+    Asm.trap(Traps.GETC),
+    Asm.str(Regs.R0, Regs.R1, 4),
+    Asm.and(Regs.R0, Regs.R0, 0),
+    Asm.trap(Traps.PUTS),
+    Asm.trap(Traps.HALT),
+])
+
+const vm = new Vm()
+const {status, output} = await vm.run(program, {
+    input: [72, 101, 108, 108, 111], // Input 'Hello'
+})
+output // [72, 101, 108, 108, 111] or 'Hello'
+```
+
+## Test coverage
 
 Opcodes tested:
 
